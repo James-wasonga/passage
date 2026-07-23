@@ -1,0 +1,50 @@
+{
+  "updatedAt": "2026-07-22T06:00:00Z",
+  "crossings": {
+    "busia": {
+      "name": "Busia (Kenya \u2013 Uganda)",
+      "avgQueueMinutes": 55,
+      "dutyRatesPct": {
+        "electronics": 25,
+        "textiles": 18,
+        "produce": 5,
+        "vehicle_parts": 20,
+        "general": 15
+      }
+    },
+    "malaba": {
+      "name": "Malaba (Kenya \u2013 Uganda)",
+      "avgQueueMinutes": 95,
+      "dutyRatesPct": {
+        "electronics": 25,
+        "textiles": 18,
+        "produce": 5,
+        "vehicle_parts": 20,
+        "general": 15
+      }
+    },
+    "namanga": {
+      "name": "Namanga (Kenya \u2013 Tanzania)",
+      "avgQueueMinutes": 40,
+      "dutyRatesPct": {
+        "electronics": 22,
+        "textiles": 16,
+        "produce": 4,
+        "vehicle_parts": 18,
+        "general": 14
+      }
+    },
+    "gatuna": {
+      "name": "Gatuna (Rwanda \u2013 Uganda)",
+      "avgQueueMinutes": 30,
+      "dutyRatesPct": {
+        "electronics": 20,
+        "textiles": 15,
+        "produce": 3,
+        "vehicle_parts": 17,
+        "general": 12
+      }
+    }
+  },
+  "processingFeeFlatUSD": 4.5
+}
