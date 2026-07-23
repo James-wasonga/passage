@@ -1,3 +1,10 @@
 node_modules/
 dist/
-
+.env
+!.env.example
+backend/var/
+contracts/artifacts/contracts/
+contracts/artifacts/build-info/
+contracts/cache/
+*.log
+.DS_Store
