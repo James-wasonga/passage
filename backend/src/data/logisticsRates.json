@@ -1,0 +1,16 @@
+{
+  "updatedAt": "2026-07-22T06:00:00Z",
+  "ratePerKgPerKmUSD": 0.012,
+  "minimumFareUSD": 3.5,
+  "corridorDistancesKm": {
+    "busia_kampala": 125,
+    "malaba_kampala": 135,
+    "namanga_arusha": 105,
+    "gatuna_kigali": 75
+  },
+  "vehicleSurchargePct": {
+    "boda_boda": 0,
+    "pickup": 10,
+    "truck_7ton": 25
+  }
+}
