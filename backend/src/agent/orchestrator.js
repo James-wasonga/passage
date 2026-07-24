@@ -73,7 +73,7 @@ export async function handleTraderQuery({ traderId, message }) {
   if (intent.needs.fx) {
     jobs.push({
       label: 'fx',
-      path: `/providers/fx?from=USD&to=${intent.fxTarget}`,
+      path: `/providers/fx?from=${intent.fxFrom || 'USD'}&to=${intent.fxTarget}`,
       priceUSD: priceToNumber(config.prices.fx),
     });
   }
@@ -172,13 +172,30 @@ function round(n) {
   return Math.round(n * 10000) / 10000;
 }
 
+function formatAmount(n) {
+  if (n !== 0 && Math.abs(n) < 1) {
+    // Small rates (e.g. 1 UGX =~ 0.00027 USD) need real precision or they
+    // misleadingly round to "0" - show up to 6 significant decimals.
+    return n.toLocaleString(undefined, { maximumFractionDigits: 6 });
+  }
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
 function composeAnswer(intent, byLabel) {
   const lines = [];
   const crossingLabel = CROSSING_LABELS[intent.crossing] || intent.crossing;
 
   if (byLabel.fx?.ok) {
-    const { rate, to } = byLabel.fx.data;
-    lines.push(`Today's rate: 1 USD \u2248 ${rate} ${to} (interbank-referenced, better than most border kiosks).`);
+    const { rate, from, to } = byLabel.fx.data;
+    if (intent.fxAmount != null) {
+      const converted = intent.fxAmount * rate;
+      lines.push(
+        `${formatAmount(intent.fxAmount)} ${from} \u2248 ${formatAmount(converted)} ${to} ` +
+          `(rate: 1 ${from} \u2248 ${formatAmount(rate)} ${to}, interbank-referenced).`
+      );
+    } else {
+      lines.push(`Today's rate: 1 ${from} \u2248 ${rate} ${to} (interbank-referenced, better than most border kiosks).`);
+    }
   }
 
   if (byLabel.customs?.ok) {
