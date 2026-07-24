@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import ChatPanel from './components/ChatPanel.jsx';
 import AgentLedger from './components/AgentLedger.jsx';
-import SettlementCard from './components/SettlementCard.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const STARTING_BALANCE = 5.0; // cosmetic demo wallet balance, in USDC
@@ -12,8 +11,12 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [ledgerEntries, setLedgerEntries] = useState([]);
   const [totalSpentUSD, setTotalSpentUSD] = useState(0);
+  const [serviceFeeUSD, setServiceFeeUSD] = useState(0);
+  const [amountChargedUSD, setAmountChargedUSD] = useState(0);
+  const [lastFx, setLastFx] = useState(null);
+  const [sponsored, setSponsored] = useState(null);
   const [spentAllTime, setSpentAllTime] = useState(0);
-  const [lastDetails, setLastDetails] = useState(null);
+  // const [lastDetails, setLastDetails] = useState(null);
   const [health, setHealth] = useState(null);
 
   useEffect(() => {
@@ -42,11 +45,17 @@ export default function App() {
         return;
       }
 
-      setMessages((prev) => [...prev, { role: 'agent', text: data.answer }]);
+      // details travels with THIS specific message, so the "settle" widget
+      // attached to it always refers to this answer's own duty figure -
+      // even if the trader goes on to ask something else afterward.
+      setMessages((prev) => [...prev, { role: 'agent', text: data.answer, details: data.details }]);
       setLedgerEntries(data.agentLog || []);
       setTotalSpentUSD(data.totalSpentUSD || 0);
+      setServiceFeeUSD(data.serviceFeeUSD || 0);
+      setAmountChargedUSD(data.amountChargedUSD || 0);
+      setLastFx(data.details?.fx || null);
+      setSponsored(data.sponsored || null);
       setSpentAllTime((prev) => prev + (data.totalSpentUSD || 0));
-      setLastDetails(data.details || null);
     } catch (err) {
       setMessages((prev) => [...prev, { role: 'agent', text: "Couldn't reach the agent backend. Is it running on port 4000?" }]);
     } finally {
@@ -54,9 +63,9 @@ export default function App() {
     }
   }
 
-  const customs = lastDetails?.customs;
-  const fx = lastDetails?.fx;
-  const showSettlement = !!customs;
+  // const customs = lastDetails?.customs;
+  // const fx = lastDetails?.fx;
+  // const showSettlement = !!customs;
 
   return (
     <div className="app">
@@ -79,23 +88,25 @@ export default function App() {
       </header>
 
       <div className="layout">
-        <ChatPanel messages={messages} onSend={handleSend} loading={loading} input={input} setInput={setInput} />
+        <ChatPanel
+          messages={messages}
+          onSend={handleSend}
+          loading={loading}
+          input={input}
+          setInput={setInput}
+          apiUrl={API_URL}
+        />
 
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <AgentLedger entries={ledgerEntries} totalSpentUSD={totalSpentUSD} mode={health?.demoMode !== false ? 'demo' : 'live'} />
-
-          {showSettlement && (
-            <div style={{ padding: '0 22px 22px' }}>
-              <SettlementCard
-                apiUrl={API_URL}
-                suggestedAmountUSD={customs.estimatedDutyUSD}
-                fxRate={fx?.rate}
-                localCurrency={fx?.to}
-                reason={`Customs duty at ${customs.crossing}`}
-              />
-            </div>
-          )}
-        </div>
+        <AgentLedger
+          entries={ledgerEntries}
+          totalSpentUSD={totalSpentUSD}
+          serviceFeeUSD={serviceFeeUSD}
+          amountChargedUSD={amountChargedUSD}
+          sponsored={sponsored}
+          fxDetails={lastFx}
+          mode={health?.demoMode !== false ? 'demo' : 'live'}
+          apiUrl={API_URL}
+        />
       </div>
     </div>
   );
