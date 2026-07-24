@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import SettlementCard from './SettlementCard.jsx';
 
 const SUGGESTIONS = [
   "Crossing at Busia with electronics worth $800, need it delivered 30kg by truck to Kampala",
@@ -6,17 +7,22 @@ const SUGGESTIONS = [
   "Namanga crossing, produce worth $150, boda boda delivery to Arusha",
 ];
 
-export default function ChatPanel({ messages, onSend, loading, input, setInput }) {
+export default function ChatPanel({ messages, onSend, loading, input, setInput, apiUrl }) {
   const scrollRef = useRef(null);
+  const [expanded, setExpanded] = useState({});
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, loading]);
+  }, [messages, loading, expanded]);
 
   function submit(e) {
     e?.preventDefault();
     if (!input.trim() || loading) return;
     onSend(input.trim());
+  }
+
+  function toggleExpanded(i) {
+    setExpanded((prev) => ({ ...prev, [i]: !prev[i] }));
   }
 
   return (
@@ -30,11 +36,35 @@ export default function ChatPanel({ messages, onSend, loading, input, setInput }
           </div>
         )}
 
-        {messages.map((m, i) => (
-          <div key={i} className={`bubble bubble--${m.role}`}>
-            {m.text}
-          </div>
-        ))}
+{messages.map((m, i) => {
+          const customs = m.details?.customs;
+          const fx = m.details?.fx;
+
+          return (
+            <div key={i}>
+              <div className={`bubble bubble--${m.role}`}>{m.text}</div>
+
+              {m.role === 'agent' && customs && (
+                <div style={{ marginTop: 8, marginBottom: 4, maxWidth: '78%' }}>
+                  {!expanded[i] ? (
+                    <button className="chip" onClick={() => toggleExpanded(i)}>
+                      Pay this ${Number(customs.estimatedDutyUSD).toFixed(2)} customs duty via mobile money
+                    </button>
+                  ) : (
+                    <SettlementCard
+                      apiUrl={apiUrl}
+                      suggestedAmountUSD={customs.estimatedDutyUSD}
+                      fxRate={fx?.rate}
+                      localCurrency={fx?.to}
+                      reason={`Customs duty at ${customs.crossing}`}
+                      onCancel={() => toggleExpanded(i)}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {loading && (
           <div className="bubble bubble--agent is-thinking">
