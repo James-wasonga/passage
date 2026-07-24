@@ -1,6 +1,31 @@
 import { useState } from 'react';
 
-export default function SettlementCard({ apiUrl, suggestedAmountUSD, fxRate, localCurrency, reason }) {
+const COPY = {
+  duty: {
+    title: 'Pay customs duty via mobile money',
+    description: (amount, currency) =>
+      `You'll owe roughly $${amount} in customs duty at the border. This converts it to ${currency} and ` +
+      "sends a normal mobile money prompt to the trader's own phone to confirm.",
+    note:
+      'Simulated for this demo \u2014 no real SMS or STK push is sent. A production version would push this ' +
+      'directly to the trader\u2019s own revenue-authority paybill (e.g. KRA/URA), never to a Passage-held account \u2014 ' +
+      'see docs/ARCHITECTURE.md.',
+    confirmedLabel: '\u2713 Confirmed by trader',
+  },
+  fee: {
+    title: 'Pay Passage\u2019s service fee via mobile money',
+    description: (amount, currency) =>
+      `This is Passage's own revenue \u2014 the markup on top of what providers were paid. Converts $${amount} ` +
+      `into ${currency} and prompts the trader (or a sponsoring organization's number) to confirm.`,
+    note:
+      'Simulated for this demo \u2014 no real SMS or STK push is sent. In production this settles to a ' +
+      'Passage-owned mobile money account, unlike the duty flow above which must never touch Passage\u2019s own funds.',
+    confirmedLabel: '\u2713 Fee collected',
+  },
+};
+
+export default function SettlementCard({ apiUrl, suggestedAmountUSD, fxRate, localCurrency, reason, kind = 'duty', onCancel }) {
+  const copy = COPY[kind] || COPY.duty;
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [receipt, setReceipt] = useState(null);
@@ -34,11 +59,9 @@ export default function SettlementCard({ apiUrl, suggestedAmountUSD, fxRate, loc
 
   return (
     <div className="settle-card">
-      <h3>Settle via mobile money</h3>
-      <p>
-        The trader never touches crypto. This converts ${Number(suggestedAmountUSD).toFixed(2)} into{' '}
-        {localCurrency || 'local currency'} and pushes a normal mobile money prompt to their phone.
-      </p>
+      <h3>{copy.title}</h3>
+      <p>{copy.description(Number(suggestedAmountUSD).toFixed(2), localCurrency || 'local currency')}</p>
+      <p style={{ color: 'var(--amber)', fontSize: 11.5 }}>{copy.note}</p>
       <div className="settle-row">
         <input
           placeholder="Phone number, e.g. 254712345678"
@@ -51,11 +74,29 @@ export default function SettlementCard({ apiUrl, suggestedAmountUSD, fxRate, loc
         </button>
       </div>
 
+      {onCancel && !receipt && (
+        <button
+          onClick={onCancel}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-dim)',
+            fontSize: 12,
+            marginTop: 10,
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            padding: 0,
+          }}
+        >
+          Cancel &mdash; not now, keep researching
+        </button>
+      )}
+
       {error && <div style={{ color: 'var(--red)', fontSize: 12.5, marginTop: 8 }}>{error}</div>}
 
       {receipt && (
         <div className="receipt">
-          <div className="receipt__title">&#10003; Confirmed by trader</div>
+          <div className="receipt__title">{copy.confirmedLabel}</div>
           <div className="receipt__row">
             <span>Amount</span>
             <b>
