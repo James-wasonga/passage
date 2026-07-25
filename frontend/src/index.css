@@ -31,6 +31,7 @@ html,
 body,
 #root {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -51,9 +52,10 @@ input {
 }
 
 .app {
-  min-height: 100%;
-  display: flex;
+  height: 100%;
+  display: flex;  
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ---------- Header ---------- */
@@ -132,6 +134,40 @@ input {
   box-shadow: 0 0 0 3px rgba(107, 207, 154, 0.18);
 }
 
+@media (max-width: 640px) {
+  .app-header {
+    padding: 14px 16px;
+  }
+
+  .brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .brand__mark {
+    font-size: 19px;
+  }
+
+  .brand__tagline {
+    font-size: 11px;
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .wallet-chip {
+    font-size: 11.5px;
+    padding: 6px 10px;
+  }
+}
+
 /* ---------- Layout ---------- */
 .layout {
   flex: 1;
@@ -141,9 +177,94 @@ input {
   min-height: 0;
 }
 
+.mobile-tabs {
+  display: none;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-tab {
+  flex: 1;
+  position: relative;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.mobile-tab.active {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-dim);
+}
+
+.mobile-tab__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+
+  .chat-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mobile-tabs {
+    display: flex;
+  }
+
+  .layout--mobile-chat .ledger-panel {
+    display: none;
+  }
+
+  .layout--mobile-ledger .chat-panel {
+    display: none;
+  }
+
+  .layout--mobile-chat .chat-panel {
+    display: flex;
+    height: 100%;
+    border-bottom: none;
+  }
+
+  .layout--mobile-ledger .ledger-panel {
+    display: flex;
+    height: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .chat-panel,
+  .ledger-panel {
+    padding: 16px;
+  }
+
+  .bubble {
+    max-width: 88%;
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .chat-empty {
+    font-size: 13px;
+    max-width: none;
   }
 }
 
@@ -185,6 +306,7 @@ input {
 
 .bubble--trader {
   align-self: flex-end;
+  min-width: 50%;
   background: var(--amber-dim);
   border: 1px solid rgba(232, 163, 61, 0.3);
   border-bottom-right-radius: 4px;
@@ -289,11 +411,32 @@ input {
   filter: brightness(1.08);
 }
 
+@media (max-width: 640px) {
+  .chips {
+    gap: 6px;
+  }
+
+  .chip {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .composer input {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+
+  .composer button {
+    padding: 0 16px;
+  }
+}
+
 /* ---------- Ledger panel ---------- */
 .ledger-panel {
   background: var(--ledger-bg);
   padding: 24px 22px;
   overflow-y: auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -556,4 +699,171 @@ input {
   color: var(--text-dim);
   text-align: center;
   line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .settle-row {
+    flex-direction: column;
+  }
+
+  .settle-row button {
+    padding: 11px 16px;
+  }
+
+  .settle-card {
+    padding: 14px;
+  }
+
+  .settle-card h3 {
+    font-size: 13.5px;
+  }
+
+  .ledger-total__value {
+    font-size: 16px;
+  }
+
+  .ticket__amount {
+    font-size: 17px;
+  }
+}
+
+/* ---------- Welcome splash ---------- */
+.welcome-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: radial-gradient(circle at 50% 30%, #1b1a26 0%, var(--bg) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.welcome-splash.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.welcome-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.welcome-confetti__piece {
+  position: absolute;
+  top: -6%;
+  border-radius: 2px;
+  animation-name: welcome-fall;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+  opacity: 0.9;
+}
+
+@keyframes welcome-fall {
+  0% {
+    transform: translateY(-10%) rotate(0deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(115vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.welcome-card {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 420px;
+  margin: 0 20px;
+  padding: 40px 32px;
+  border-radius: 20px;
+  border: 1px solid var(--border-strong);
+  background: rgba(23, 22, 31, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.welcome-badge {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: var(--teal-dim);
+  border: 2px solid var(--teal);
+  color: var(--teal);
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-card h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  margin: 0 0 10px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.welcome-card h1 span {
+  color: var(--amber);
+}
+
+.welcome-card p {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 22px;
+}
+
+.welcome-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.welcome-loading__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: welcome-pulse 1.2s ease-in-out infinite;
+}
+
+.welcome-loading__dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.welcome-loading__dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes welcome-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-card {
+    padding: 32px 22px;
+  }
+
+  .welcome-card h1 {
+    font-size: 22px;
+  }
 }
