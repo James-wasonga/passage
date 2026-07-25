@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import ChatPanel from './components/ChatPanel.jsx';
 import AgentLedger from './components/AgentLedger.jsx';
+import WelcomeSplash from './components/WelcomeSplash.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const STARTING_BALANCE = 5.0; // cosmetic demo wallet balance, in USDC
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [ mobileTab, setMobileTab] = useState('chat');
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,6 +71,9 @@ export default function App() {
   // const showSettlement = !!customs;
 
   return (
+    <>
+    { showSplash && <WelcomeSplash onDone={() => setShowSplash(false)} /> }
+
     <div className="app">
       <header className="app-header">
         <div className="brand">
@@ -87,7 +93,23 @@ export default function App() {
         </div>
       </header>
 
-      <div className="layout">
+      <div className="mobile-tabs">
+          <button
+            className={`mobile-tab${mobileTab === 'chat' ? ' active' : ''}`}
+            onClick={() => setMobileTab('chat')}
+          >
+            Chat
+          </button>
+          <button
+            className={`mobile-tab${mobileTab === 'ledger' ? ' active' : ''}`}
+            onClick={() => setMobileTab('ledger')}
+          >
+            Toll Ledger
+            {ledgerEntries.length > 0 && mobileTab !== 'ledger' && <span className="mobile-tab__dot" />}
+          </button>
+      </div>
+
+      <div className={`layout layout--mobile-${mobileTab}`}>
         <ChatPanel
           messages={messages}
           onSend={handleSend}
@@ -109,5 +131,6 @@ export default function App() {
         />
       </div>
     </div>
+    </>
   );
 }
