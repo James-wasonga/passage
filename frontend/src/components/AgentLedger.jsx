@@ -6,9 +6,21 @@ const PROVIDER_LABELS = {
   logistics: 'Logistics',
 };
 
+const EXPLORER_BASE_BY_NETWORK = {
+  'base-sepolia': 'https://sepolia.basescan.org/tx/',
+  base: 'https://basescan.org/tx/',
+};
+
 function truncateHash(hash) {
   if (!hash || hash.length < 14) return hash || '\u2014';
   return `${hash.slice(0, 8)}\u2026${hash.slice(-6)}`;
+}
+
+// * Only real, live on-chain payments get a clickable explorer link
+function explorerUrl(network, txHash) {
+  if (!txHash || !network || network.includes('simulated')) return null;
+  const key = Object.keys(EXPLORER_BASE_BY_NETWORK).find((k) => network.includes(k));
+  return key ? `${EXPLORER_BASE_BY_NETWORK[key]}${txHash}` : null;
 }
 
 function Ticket({ entry }) {
@@ -31,6 +43,8 @@ function Ticket({ entry }) {
     );
   }
 
+  const link = explorerUrl(entry.network, entry.txHash);
+
   return (
     <div className="ticket">
       <div className="ticket__head">
@@ -42,7 +56,19 @@ function Ticket({ entry }) {
         <span className="ticket__amount">${Number(entry.amountUSD).toFixed(3)}</span>
         <div className="ticket__meta">
           <div className="ticket__latency">{entry.latencyMs}ms &middot; {entry.network}</div>
-          <div className="ticket__hash">{truncateHash(entry.txHash)}</div>
+          {link ? (
+            <a
+              className="ticket__hash ticket__hash--link"
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="View this transaction on Basescan"
+            >
+              {truncateHash(entry.txHash)} <span aria-hidden="true">&#8599;</span>
+            </a>
+          ) : (
+            <div className="ticket__hash">{truncateHash(entry.txHash)}</div>
+          )}
         </div>
       </div>
     </div>
