@@ -585,6 +585,18 @@ input {
   color: var(--text-dim);
 }
 
+.ticket__hash--link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.ticket__hash--link:hover,
+.ticket__hash--link:focus-visible {
+  color: var(--teal);
+  text-decoration: underline;
+}
+
 .ledger-total {
   border-top: 1px solid var(--border);
   padding-top: 14px;
