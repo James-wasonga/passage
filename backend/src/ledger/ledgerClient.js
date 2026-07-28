@@ -15,7 +15,8 @@ async function getContract() {
     const { createWalletClient, http, createPublicClient } = await import('viem');
     const { privateKeyToAccount } = await import('viem/accounts');
     const { baseSepolia } = await import('viem/chains');
-    const { abi } = await import('../../../contracts/artifacts/PassageLedger.abi.js');
+    // const { abi } = await import('../../../contracts/artifacts/PassageLedger.abi.js');
+    const { abi } = await import('./PassageLedger.abi.js');
 
     const account = privateKeyToAccount(config.chain.walletPrivateKey);
     const wallet = createWalletClient({ account, transport: http(config.chain.rpcUrl || undefined), chain: baseSepolia });
@@ -44,7 +45,8 @@ export async function recordSettlement(entry) {
   if (!config.demoMode && config.ledger.contractAddress) {
     try {
       const { wallet, account } = await getContract();
-      const { abi } = await import('../../../contracts/artifacts/PassageLedger.abi.js');
+      // const { abi } = await import('../../../contracts/artifacts/PassageLedger.abi.js');
+      const { abi } = await import('./PassageLedger.abi.js');
       const queryHash = `0x${Buffer.from(JSON.stringify(entry)).toString('hex').slice(0, 64).padEnd(64, '0')}`;
       const txHash = await wallet.writeContract({
         address: config.ledger.contractAddress,
