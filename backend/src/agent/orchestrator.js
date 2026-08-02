@@ -54,9 +54,10 @@ export async function handleTraderQuery({ traderId, message }) {
   if (intent.offTopic) {
     return {
       answer:
-        "I'm Passage's trade corridor agent - I can help with border crossings, customs estimates, " +
-        "exchange rates, and last-mile delivery quotes. Try asking something like \"crossing at Busia " +
-        'with electronics worth $800\" or "what\'s today\'s rate to KSH?".',
+      "It looks like your question isn't related to cross-border trade, which is what I specialize in. " +
+      "I'm Passage, your cross-border trade assistant. I can help with exchange rates, customs estimates, " +
+      "border crossings, and last-mile delivery quotes. Try asking something like \"Crossing at Busia " +
+      'with electronics worth $800\" or "How much is 30,000 UGX in KES?"',
       intent,
       details: { fx: null, customs: null, logistics: null },
       agentLog: [],
