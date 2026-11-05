@@ -4,7 +4,7 @@ import AgentLedger from './components/AgentLedger.jsx';
 import WelcomeSplash from './components/WelcomeSplash.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-const STARTING_BALANCE = 5.0; // cosmetic demo wallet balance, in USDC
+// const STARTING_BALANCE = 5.0; // cosmetic demo wallet balance, in USDC
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -18,15 +18,29 @@ export default function App() {
   const [amountChargedUSD, setAmountChargedUSD] = useState(0);
   const [lastFx, setLastFx] = useState(null);
   const [sponsored, setSponsored] = useState(null);
-  const [spentAllTime, setSpentAllTime] = useState(0);
+  // const [spentAllTime, setSpentAllTime] = useState(0);
   // const [lastDetails, setLastDetails] = useState(null);
   const [health, setHealth] = useState(null);
 
+  // useEffect(() => {
+  //   fetch(`${API_URL}/api/health`)
+  //     .then((r) => r.json())
+  //     .then(setHealth)
+  //     .catch(() => setHealth({ ok: false, demoMode: true }));
+  // }, []);
+
+  async function refreshHealth() {
+    try {
+      const resp = await fetch(`${API_URL}/api/health`);
+      const data = await resp.json();
+      setHealth(data);
+    } catch {
+      setHealth({ ok: false, demoMode: true, wallet: null });
+    }
+  }
+
   useEffect(() => {
-    fetch(`${API_URL}/api/health`)
-      .then((r) => r.json())
-      .then(setHealth)
-      .catch(() => setHealth({ ok: false, demoMode: true }));
+    refreshHealth();
   }, []);
 
   async function handleSend(text) {
@@ -58,7 +72,7 @@ export default function App() {
       setAmountChargedUSD(data.amountChargedUSD || 0);
       setLastFx(data.details?.fx || null);
       setSponsored(data.sponsored || null);
-      setSpentAllTime((prev) => prev + (data.totalSpentUSD || 0));
+      // setSpentAllTime((prev) => prev + (data.totalSpentUSD || 0));
     } catch (err) {
       setMessages((prev) => [...prev, { role: 'agent', text: "Couldn't reach the agent backend. Is it running on port 4000?" }]);
     } finally {
@@ -86,10 +100,18 @@ export default function App() {
           <span className={`badge ${health?.demoMode !== false ? 'badge--demo' : ''}`}>
             {health?.demoMode !== false ? 'Demo mode' : `Live \u2022 ${health?.network}`}
           </span>
-          <div className="wallet-chip">
+          {/* <div className="wallet-chip">
             <span className="wallet-chip__dot" />
             {(STARTING_BALANCE - spentAllTime).toFixed(3)} USDC
-          </div>
+          </div> */}
+          <button 
+            className="wallet-chip" 
+            onClick={() => document.body.classList.toggle('light-theme')}
+            style={{ cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'inherit' }}
+          >
+            <span className="wallet-chip__dot" />
+            <span>☀️ Toggle</span>
+          </button>
         </div>
       </header>
 
